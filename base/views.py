@@ -39,7 +39,7 @@ def loginPage(request):
             messages.error(request, 'Username or Password does not exist')
 
     context = {'page': page}
-    return render (request, 'base/login_register.html', context)
+    return render(request, 'base/login_register.html', context)
 
 def logoutUser(request):
     logout(request)
@@ -129,21 +129,18 @@ def createRoom(request):
 def updateRoom(request, pk):
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)
-    topics= Topic.objects.all()
-
+    topics = Topic.objects.all()
     if request.user != room.host:
         return HttpResponse('Your are not allowed here!!')
 
     if request.method == 'POST':
-        topic_name=request.POST.get('topic')
-        topic, create = Topic.objects.get_or_create(name=topic_name)
+        topic_name = request.POST.get('topic')
+        topic, created = Topic.objects.get_or_create(name=topic_name)
         room.name = request.POST.get('name')
-        room.topic = request.topic
+        room.topic = topic
         room.description = request.POST.get('description')
         room.save()
-        
         return redirect('home')
-
 
     context = {'form': form, 'topics': topics, 'room': room}
     return render(request, 'base/room_form.html', context)
@@ -181,12 +178,12 @@ def updateUser(request):
     form = UserForm(instance=user)
 
     if request.method == 'POST':
-        form = UserForm(request.POST, instance=user)
+        form = UserForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             return redirect('user-profile', pk=user.id)
 
-    return render(request,'base/update-user.html', {'form':form})
+    return render(request, 'base/update-user.html', {'form': form})
 
 def topicsPage(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
