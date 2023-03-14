@@ -6,11 +6,11 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["2.7","3.7", "3.8", "3.9", "3.10"]
+        
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -30,7 +30,9 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         run: |
-        
+      - name: Verify that the Docker image for the action builds
+        run: docker build . --file Dockerfile
+      
   tests:
     name: tox on ${{ matrix.python-version }}
     runs-on: ubuntu-latest
@@ -46,6 +48,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          
       - name: Install dependencies
         run: |
           python -VV
